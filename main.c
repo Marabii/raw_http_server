@@ -12,10 +12,11 @@
 #include <time.h>
 #include <locale.h>
 
+#include "http_server.h"
+#include "headers_parser.h"
+
 #define PORT 8080
 #define MAX_EVENTS 10
-#define READ_BUFFER 4096
-#define WRITE_BUFFER 4096
 
 char *format_response(size_t *size);
 char *read_html_file(FILE *fp, size_t *sz);
@@ -119,7 +120,7 @@ int main()
             }
         }
 
-        for (size_t i = 0; i < ready; i++)
+        for (size_t i = 0; i < (size_t)ready; i++)
         {
             struct epoll_event event = events[i];
 
@@ -171,10 +172,13 @@ int main()
                 // Set the null byte at the end:
                 read_buffer[read_sz] = '\0';
 
-                printf("Received data: \n:%s\n\n", read_buffer);
+                Headers *headers = parse_headers(read_buffer, read_sz);
+                if (headers != NULL)
+                {
+                    print_http_request(headers);
+                }
 
                 size_t response_size = 0;
-
                 char *response = format_response(&response_size);
 
                 if (response == NULL)
@@ -211,7 +215,7 @@ cleanup:
 
 char *format_response(size_t *size)
 {
-    FILE *fp = fopen("./response.html", "r");
+    FILE *fp = fopen("./html/response.html", "r");
 
     if (fp == NULL)
     {
