@@ -1,16 +1,19 @@
-#include "http_server.h"
-#include "headers_parser.h"
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
 
+#include "http_server.h"
+#include "headers_parser.h"
+#include "../utils/utils.h"
+
 /*Converts string to lowercase in-place*/
 void str_tolower(char *str);
 
+// TODO: error out if there is a space right before the colon: RFC 7230/9112
 Headers *parse_headers(const char *raw_headers, const size_t size)
 {
-    char *headers_copy = (char *)malloc(size);
+    char *headers_copy = (char *)malloc(size + 1); // +1 for the null byte.
     if (headers_copy == NULL)
     {
         return NULL;
@@ -18,7 +21,7 @@ Headers *parse_headers(const char *raw_headers, const size_t size)
 
     char *headers_copy_start = headers_copy;
 
-    memcpy(headers_copy, raw_headers, size);
+    memcpy(headers_copy, raw_headers, size + 1);
 
     // Parse http verb:
     char *verb_end = strchr(headers_copy, ' ');
@@ -182,7 +185,9 @@ Headers *parse_headers(const char *raw_headers, const size_t size)
 
     if (headers == NULL)
     {
+        handle_oom();
     }
+
     headers->header_entries = header_entries;
     headers->header_entries_size = header_entries_size;
     headers->http_verb = verb;

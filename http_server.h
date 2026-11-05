@@ -1,6 +1,9 @@
 #pragma once
 #include <stddef.h>
 
+#define PORT 8080
+#define MAX_EVENTS 10 // Maximum number of file descriptors epoll_wait can report at once.
+
 // Read and write buffer sizes:
 #define READ_BUFFER 4096
 #define WRITE_BUFFER 4096

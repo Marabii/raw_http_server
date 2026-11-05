@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.15)
 
 project(RawHttpServer C)
 
-set(CMAKE_C_STANDARD 17)
+set(CMAKE_C_STANDARD 23)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 
 # Default to Debug if no build type is specified
@@ -14,11 +14,19 @@ endif()
 # Option to enable AddressSanitizer (and UndefinedBehaviorSanitizer)
 option(ENABLE_ASAN "Enable AddressSanitizer and UndefinedBehaviorSanitizer" OFF)
 
-add_executable(http_server 
-    main.c 
-    db_driver.c 
-    headers_parser.c
+add_executable(http_server
+    main.c
+    conn/conn.c
+    db_driver/db_driver.c
+    db_driver/db_driver_helpers.c
+    env_parser/env_parser.c
+    headers/headers_parser.c
+    responses/response_handler.c
+    utils/utils.c
 )
+
+# Headers include "http_server.h" from the project root
+target_include_directories(http_server PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 
 # Apply strict warnings
 if(MSVC)
@@ -33,7 +41,7 @@ if(ENABLE_ASAN)
         target_compile_options(http_server PRIVATE /fsanitize=address)
     else()
         # -fno-omit-frame-pointer ensures readable stack traces on crash
-        target_compile_options(http_server PRIVATE 
+        target_compile_options(http_server PRIVATE
             -fsanitize=address,undefined 
             -fno-omit-frame-pointer 
             -g
