@@ -120,7 +120,7 @@ int connect_to_tcp(const char *host, const uint16_t port)
         return -1;
     }
 
-    return conn_fd; // Return the connected file descriptor
+    return conn_fd;
 }
 
 IPv4ConnSock *initialize_server()

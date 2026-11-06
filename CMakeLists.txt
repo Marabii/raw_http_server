@@ -18,7 +18,11 @@ add_executable(http_server
     main.c
     conn/conn.c
     db_driver/db_driver.c
-    db_driver/db_driver_helpers.c
+    db_driver/auth/auth.c
+    db_driver/auth/auth_helpers.c
+    db_driver/auth/scram-sha-256/mechanism.c
+    db_driver/helpers/helpers.c
+    db_driver/post_auth_init/read_server_params.c
     env_parser/env_parser.c
     headers/headers_parser.c
     responses/response_handler.c
@@ -27,6 +31,10 @@ add_executable(http_server
 
 # Headers include "http_server.h" from the project root
 target_include_directories(http_server PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+
+# Link against OpenSSL:
+find_package(OpenSSL REQUIRED)
+target_link_libraries(http_server PRIVATE OpenSSL::SSL)
 
 # Apply strict warnings
 if(MSVC)
@@ -46,7 +54,7 @@ if(ENABLE_ASAN)
             -fno-omit-frame-pointer 
             -g
         )
-        target_link_options(http_server PRIVATE 
+        target_link_options(http_server PRIVATE
             -fsanitize=address,undefined
         )
     endif()

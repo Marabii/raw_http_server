@@ -16,7 +16,10 @@ int main()
         return EXIT_FAILURE;
     }
 
-    connect_to_db();
+    DBServerDetails* db_details = connect_to_db();
+    if (db_details == NULL) {
+        return EXIT_FAILURE;
+    }
 
     int event_loop_res = start_event_loop(conn_sock);
     if (event_loop_res == -1)

@@ -1,6 +1,8 @@
 #pragma once
 #include <stddef.h>
 
+#define MAXIMUM_ALLOWED_PAYLOAD 256000 // 256 kb
+
 #define PORT 8080
 #define MAX_EVENTS 10 // Maximum number of file descriptors epoll_wait can report at once.
 
