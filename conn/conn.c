@@ -128,7 +128,7 @@ IPv4ConnSock *initialize_server()
     IPv4ConnSock *conn_sock = start_tcp_server("127.0.0.1", PORT);
     if (conn_sock == NULL)
     {
-        fprintf(stderr, "Failed to start server");
+        fprintf(stderr, "Failed to start server\n");
         return NULL;
     }
 

@@ -21,6 +21,7 @@ add_executable(http_server
     db_driver/auth/auth.c
     db_driver/auth/auth_helpers.c
     db_driver/auth/scram-sha-256/mechanism.c
+    db_driver/db_requests/db_requests.c
     db_driver/helpers/helpers.c
     db_driver/post_auth_init/read_server_params.c
     env_parser/env_parser.c

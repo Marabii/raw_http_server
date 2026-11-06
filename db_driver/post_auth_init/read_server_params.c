@@ -7,8 +7,6 @@
 #include "db_driver/helpers/helpers.h"
 
 // --- Helpers ---
-static void free_DBServerDetails(DBServerDetails *server_details);
-static void free_DBServerParam(DBServerParam *server_params);
 static int add_server_param(DBServerDetails *server_details, const uint8_t *data, size_t data_len);
 static int add_key_data(DBServerDetails *server_details, const uint8_t *data, size_t data_len);
 
@@ -95,31 +93,6 @@ cleanup:
 }
 
 // --- Helpers impl ---
-static void free_DBServerParam(DBServerParam *server_params)
-{
-    if (server_params != NULL)
-    {
-        free(server_params->name);
-        free(server_params->val);
-        free(server_params);
-    }
-}
-
-static void free_DBServerDetails(DBServerDetails *server_details)
-{
-    if (server_details != NULL)
-    {
-        DBServerParam *param = server_details->params;
-        while (param != NULL)
-        {
-            DBServerParam *next = param->next;
-            free_DBServerParam(param);
-            param = next;
-        }
-        free(server_details);
-    }
-}
-
 static int add_key_data(DBServerDetails *server_details, const uint8_t *data, size_t data_len)
 {
     if (data_len != 8)

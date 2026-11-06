@@ -16,8 +16,9 @@ int main()
         return EXIT_FAILURE;
     }
 
-    DBServerDetails* db_details = connect_to_db();
-    if (db_details == NULL) {
+    DBPool *db_pool = db_pool_create();
+    if (db_pool == NULL)
+    {
         return EXIT_FAILURE;
     }
 
@@ -25,8 +26,11 @@ int main()
     if (event_loop_res == -1)
     {
         fprintf(stderr, "Failed to start event loop\n");
+        db_pool_destroy(db_pool);
         return EXIT_FAILURE;
     }
+
+    db_pool_destroy(db_pool);
 
     return 0;
 }

@@ -28,4 +28,28 @@ typedef struct
     int db_fd;
 } DBServerDetails;
 
-DBServerDetails *connect_to_db();
+#define DB_POOL_SIZE 5
+
+typedef struct
+{
+    DBServerDetails *idle[DB_POOL_SIZE];
+    size_t idle_count;
+} DBPool;
+
+// Opens and authenticates DB_POOL_SIZE connections. Returns NULL if any of them fails.
+DBPool *db_pool_create(void);
+
+// Takes an idle connection out of the pool. Returns NULL if every connection is in use.
+DBServerDetails *db_pool_acquire(DBPool *pool);
+
+// Gives a connection obtained from db_pool_acquire back to the pool.
+void db_pool_release(DBPool *pool, DBServerDetails *conn);
+
+// Closes every connection and frees the pool. All connections should have been released first.
+void db_pool_destroy(DBPool *pool);
+
+// Frees the details only, does not close db_fd.
+void free_DBServerDetails(DBServerDetails *server_details);
+
+// Frees connection params
+void free_DBServerParam(DBServerParam *server_params);
