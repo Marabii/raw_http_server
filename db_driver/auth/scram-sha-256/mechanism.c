@@ -40,8 +40,6 @@ typedef struct
 // --- Helpers ---
 static void scram_free(ScramSession *s);
 static void generate_nonce(char *out, size_t len);
-static ByteBuffer *msg_begin(void);
-static void msg_end(ByteBuffer *bb);
 static ByteBuffer *build_sasl_initial_response(ScramSession *s);
 static int server_sigs_match(ScramSession *s, const char *msg, size_t len);
 static int parse_server_first(ScramSession *s, const char *msg, size_t len);
@@ -54,7 +52,7 @@ static int expect_auth(DBResponse *res, uint32_t code);
 // --- Main logic ---
 int authenticate_scram_sha_256(int db_fd)
 {
-    const char *password = "....";
+    const char *password = "...";
 
     ScramSession s = {0};
     ByteBuffer *req = NULL;
@@ -150,21 +148,6 @@ static void generate_nonce(char *out, size_t len)
     out[len] = '\0';
 }
 
-// Starts a frontend 'p' message and reserves 4 bytes for the length.
-static ByteBuffer *msg_begin(void)
-{
-    ByteBuffer *bb = bb_create(64);
-    bb_write_u8(bb, 'p');
-    bb_write_u32_be(bb, 0);
-    return bb;
-}
-
-// Fills in the length reserved by msg_begin (it excludes the type byte).
-static void msg_end(ByteBuffer *bb)
-{
-    bb_write_length(bb, bb->cursor - 1, 1);
-}
-
 static ByteBuffer *build_sasl_initial_response(ScramSession *s)
 {
     generate_nonce(s->client_nonce, SCRAM_NONCE_LEN);
@@ -176,7 +159,7 @@ static ByteBuffer *build_sasl_initial_response(ScramSession *s)
 
     size_t first_len = strlen(GS2_HEADER) + strlen(s->client_first_bare);
 
-    ByteBuffer *bb = msg_begin();
+    ByteBuffer *bb = msg_begin('p', 64);
     bb_write_string(bb, MECHANISM_NAME, strlen(MECHANISM_NAME), 1);
     bb_write_u32_be(bb, (uint32_t)first_len);
     bb_write_string(bb, GS2_HEADER, strlen(GS2_HEADER), 0);
@@ -193,7 +176,7 @@ static int expect_auth(DBResponse *res, uint32_t code)
     {
         return 0;
     }
-    return parse_be32_to_sizet(res->data) == code;
+    return (uint32_t)parse_be32_to_int32_t(res->data) == code;
 }
 
 // Verifies the server sent signature matches what we computed.
@@ -333,7 +316,7 @@ static ByteBuffer *build_sasl_response(const ScramSession *s, const uint8_t proo
 {
     char *proof_b64 = base64_encode(proof, SCRAM_KEY_LEN);
 
-    ByteBuffer *bb = msg_begin();
+    ByteBuffer *bb = msg_begin('p', 64);
     bb_write_string(bb, s->client_final_without_proof, strlen(s->client_final_without_proof), 0);
     bb_write_string(bb, ",p=", 3, 0);
     bb_write_string(bb, proof_b64, strlen(proof_b64), 0);

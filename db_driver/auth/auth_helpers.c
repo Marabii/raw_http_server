@@ -51,7 +51,7 @@ int parse_auth_response(DBResponse *db_response)
         return -1;
     }
 
-    size_t auth_code = parse_be32_to_sizet(db_response->data);
+    size_t auth_code = (size_t)parse_be32_to_int32_t(db_response->data);
 
     switch (auth_code)
     {

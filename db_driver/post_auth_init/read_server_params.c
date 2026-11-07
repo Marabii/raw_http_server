@@ -100,8 +100,8 @@ static int add_key_data(DBServerDetails *server_details, const uint8_t *data, si
         return -1;
     }
 
-    uint32_t db_pid = (uint32_t)parse_be32_to_sizet(data);
-    uint32_t cancellation_key = (uint32_t)parse_be32_to_sizet(data + 4);
+    uint32_t db_pid = parse_be32_to_int32_t(data);
+    uint32_t cancellation_key = parse_be32_to_int32_t(data + 4);
 
     server_details->db_pid = db_pid;
     server_details->cancellation_key = cancellation_key;

@@ -77,7 +77,7 @@ DBResponse *read_db_response(int fd)
     uint8_t type = raw_buffer_start[0];
 
     // parse the length:
-    size_t len = parse_be32_to_sizet(raw_buffer_start + 1);
+    size_t len = (size_t)parse_be32_to_int32_t(raw_buffer_start + 1);
 
     if (len > MAXIMUM_ALLOWED_PAYLOAD)
     {
@@ -237,12 +237,20 @@ void free_ByteBuffer(ByteBuffer *bb)
     }
 }
 
-size_t parse_be32_to_sizet(const uint8_t *buf)
+int16_t parse_be16_to_int16_t(const uint8_t *buf)
 {
-    return ((size_t)buf[0] << 24) |
-           ((size_t)buf[1] << 16) |
-           ((size_t)buf[2] << 8) |
-           ((size_t)buf[3]);
+    uint16_t u = ((uint16_t)buf[0] << 8) |
+                 ((uint16_t)buf[1]);
+    return (int16_t)u;
+}
+
+int32_t parse_be32_to_int32_t(const uint8_t *buf)
+{
+    uint32_t u = ((uint32_t)buf[0] << 24) |
+                 ((uint32_t)buf[1] << 16) |
+                 ((uint32_t)buf[2] << 8) |
+                 ((uint32_t)buf[3]);
+    return (int32_t)u;
 }
 
 // Copies len bytes of str into a new null terminated string.
@@ -251,4 +259,18 @@ char *dup_str(const char *str, size_t len)
     ByteBuffer *bb = bb_create(len + 1);
     bb_write_string(bb, str, len, 0);
     return bb_detach_cstr(bb);
+}
+
+ByteBuffer *msg_begin(char type, size_t initial_capacity)
+{
+    ByteBuffer *bb = bb_create(initial_capacity);
+    bb_write_u8(bb, (uint8_t)type);
+    bb_write_u32_be(bb, 0);
+    return bb;
+}
+
+// Fills in the length reserved by msg_begin (it excludes the type byte).
+void msg_end(ByteBuffer *bb)
+{
+    bb_write_length(bb, bb->cursor - 1, 1);
 }

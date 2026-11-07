@@ -2,8 +2,9 @@
 #include <stdio.h>
 
 #include "http_server.h"
-#include "./db_driver/db_driver.h"
-#include "./conn/conn.h"
+#include "db_driver/db_driver.h"
+#include "db_driver/db_requests/db_requests.h"
+#include "conn/conn.h"
 
 int main()
 {
@@ -21,6 +22,9 @@ int main()
     {
         return EXIT_FAILURE;
     }
+
+    DBServerDetails *db_conn = db_pool_acquire(db_pool);
+    SqlTable *response = run_query(db_conn, "SELECT * FROM users;");
 
     int event_loop_res = start_event_loop(conn_sock);
     if (event_loop_res == -1)

@@ -33,4 +33,8 @@ void bb_write_u8(ByteBuffer *bb, uint8_t val);
 void bb_write_string(ByteBuffer *bb, const char *str, size_t str_len, int include_null_terminator); // include_null_terminator can only be 0 or 1.
 char *bb_detach_cstr(ByteBuffer *bb);                                                               // Appends '\0', returns the data and frees the ByteBuffer wrapper. Caller owns the returned string.
 void free_ByteBuffer(ByteBuffer *bb);
-size_t parse_be32_to_sizet(const uint8_t *buf);
+ByteBuffer *msg_begin(char type, size_t initial_capacity);
+// Fills in the length reserved by msg_begin (it excludes the type byte).
+void msg_end(ByteBuffer *bb);
+int32_t parse_be32_to_int32_t(const uint8_t *buf);
+int16_t parse_be16_to_int16_t(const uint8_t *buf);
