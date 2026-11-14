@@ -1,0 +1,6 @@
+.vscode
+build
+build-*
+docs
+.env
+loadtest/results

@@ -1,0 +1,13 @@
+services:
+  http_server:
+    build: .
+    container_name: raw_http_server
+    network_mode: host
+
+    # Resource limits.
+    mem_limit: ${SERVER_MEM:-256m}
+    memswap_limit: ${SERVER_MEM:-256m} # Removes swap.
+    cpus: ${SERVER_CPUS:-1.0}
+
+    init: true
+    tty: true

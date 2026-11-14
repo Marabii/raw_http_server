@@ -1,0 +1,5 @@
+.git
+.vscode
+build
+build-*
+test/node_modules
